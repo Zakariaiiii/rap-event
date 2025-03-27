@@ -28,3 +28,42 @@ h1 {
 .bobony-family .watermark:hover {
     background: #e63900;
 }
+#vote {
+    text-align: center;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    margin: 20px auto;
+    width: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.vote-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.vote-option {
+    font-size: 18px;
+}
+
+#vote-btn {
+    background: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#vote-btn:hover {
+    background: #2980b9;
+}
+
+#vote-results {
+    margin-top: 15px;
+    font-size: 18px;
+}
