@@ -6,6 +6,11 @@
     <title>مجتمع الراب | BIG A & mirv48</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    
     <style>
         :root {
             --primary-color: #4CAF50;
@@ -131,6 +136,81 @@
             height: 3px;
             background: var(--primary-color);
             border-radius: 3px;
+        }
+
+        .vote-container {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .vote-option {
+            display: block;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 8px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .vote-option:hover {
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .vote-option input {
+            margin-left: 10px;
+        }
+
+        #vote-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: block;
+            margin: 0 auto 2rem;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        #vote-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        #vote-results {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        #vote-results h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        #vote-results p {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .result-bar {
+            margin-bottom: 1rem;
+        }
+
+        .bar {
+            height: 10px;
+            background: var(--primary-color);
+            border-radius: 5px;
+            margin-top: 5px;
+            transition: width 0.5s ease;
         }
 
         .artists-container {
@@ -540,6 +620,10 @@
             .logo {
                 font-size: 1.5rem;
             }
+
+            .vote-container {
+                padding: 1rem;
+            }
         }
 
         @media (max-width: 576px) {
@@ -571,6 +655,7 @@
             <a href="#artists">الفنانين</a>
             <a href="#streamers">البث المباشر</a>
             <a href="#videos">الفيديوهات</a>
+            <a href="#vote">التصويت</a>
         </nav>
         
         <div class="menu-toggle" onclick="toggleMenu()">
@@ -586,6 +671,7 @@
             <a href="#artists" onclick="toggleMenu()">الفنانين</a>
             <a href="#streamers" onclick="toggleMenu()">البث المباشر</a>
             <a href="#videos" onclick="toggleMenu()">الفيديوهات</a>
+            <a href="#vote" onclick="toggleMenu()">التصويت</a>
         </nav>
     </div>
     
@@ -673,28 +759,53 @@
                 </div>
             </div>
         </section>
+
         <section id="vote" class="fade-in delay-2">
             <h2 class="section-title">صوّت لفنانك المفضل</h2>
             
             <div class="vote-container">
                 <label class="vote-option">
-                    <input type="radio" name="artist" value="BIG A"> BIG A
+                    <input type="radio" name="artist" value="BIG A"> 
+                    <span>BIG A</span>
                 </label>
+                
                 <label class="vote-option">
-                    <input type="radio" name="artist" value="mirv48"> mirv48
+                    <input type="radio" name="artist" value="mirv48"> 
+                    <span>mirv48</span>
                 </label>
+                
                 <label class="vote-option">
-                    <input type="radio" name="artist" value="Shaoline"> Shaoline
+                    <input type="radio" name="artist" value="Shaoline"> 
+                    <span>Shaoline</span>
                 </label>
+
+                <label class="vote-option">
+                    <input type="radio" name="artist" value="aessa"> 
+                    <span>aessa</span>
+                </label>
+
             </div>
             
             <button id="vote-btn">إرسال التصويت</button>
             
             <div id="vote-results">
                 <h3>نتائج التصويت:</h3>
-                <p><strong>BIG A:</strong> <span id="bigA-votes">0</span> صوت</p>
-                <p><strong>mirv48:</strong> <span id="mirv48-votes">0</span> صوت</p>
-                <p><strong>Shaoline:</strong> <span id="shaoline-votes">0</span> صوت</p>
+                <div class="result-bar">
+                    <p><strong>BIG A:</strong> <span id="bigA-votes">0</span> صوت</p>
+                    <div class="bar" style="width: 0%" id="bigA-bar"></div>
+                </div>
+                <div class="result-bar">
+                    <p><strong>mirv48:</strong> <span id="mirv48-votes">0</span> صوت</p>
+                    <div class="bar" style="width: 0%" id="mirv48-bar"></div>
+                </div>
+                <div class="result-bar">
+                    <p><strong>Shaoline:</strong> <span id="shaoline-votes">0</span> صوت</p>
+                    <div class="bar" style="width: 0%" id="shaoline-bar"></div>
+                </div>
+                <div class="result-bar">
+                    <p><strong>aessa:</strong> <span id="aessa-votes">0</span> صوت</p>
+                    <div class="bar" style="width: 0%" id="aessa-bar"></div>
+                </div>
             </div>
         </section>
         
@@ -799,7 +910,6 @@
                     </div>
                 </a>
         
-                <!-- زر Bobony Family -->
                 <div class="bobony-family">
                     <a href="https://discord.gg/bobonyfamily" class="watermark" target="_blank">Bobony Family</a>
                 </div>
@@ -813,6 +923,7 @@
             <a href="#artists" class="footer-link">الفنانين</a>
             <a href="#streamers" class="footer-link">البث المباشر</a>
             <a href="#videos" class="footer-link">الفيديوهات</a>
+            <a href="#vote" class="footer-link">التصويت</a>
         </div>
         <p class="copyright">© 2025 مجتمع الراب. جميع الحقوق محفوظة.</p>
         <a href="https://www.instagram.com/zakariae_lahmidi/" class="designer-instagram" target="_blank">
@@ -869,6 +980,38 @@
             element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             fadeInObserver.observe(element);
         });
+
+        document.getElementById('vote-btn').addEventListener('click', function() {
+            const selectedArtist = document.querySelector('input[name="artist"]:checked');
+            
+            if (selectedArtist) {
+                alert(`شكراً لتصويتك لـ ${selectedArtist.value}!`);
+                updateVotes(selectedArtist.value);
+            } else {
+                alert('الرجاء اختيار فنان قبل التصويت');
+            }
+        });
+
+        function updateVotes(artist) {
+            const votes = {
+                'BIG A': Math.floor(Math.random() * 100) + 1,
+                'mirv48': Math.floor(Math.random() * 100) + 1,
+                'Shaoline': Math.floor(Math.random() * 100) + 1
+            };
+            
+            document.getElementById('bigA-votes').textContent = votes['BIG A'];
+            document.getElementById('mirv48-votes').textContent = votes['mirv48'];
+            document.getElementById('shaoline-votes').textContent = votes['Shaoline'];
+            
+            const totalVotes = votes['BIG A'] + votes['mirv48'] + votes['Shaoline'];
+            if (totalVotes > 0) {
+                document.getElementById('bigA-bar').style.width = `${(votes['BIG A'] / totalVotes) * 100}%`;
+                document.getElementById('mirv48-bar').style.width = `${(votes['mirv48'] / totalVotes) * 100}%`;
+                document.getElementById('shaoline-bar').style.width = `${(votes['Shaoline'] / totalVotes) * 100}%`;
+            }
+        }
+    
+        updateVotes();
     </script>
 </body>
 </html>
