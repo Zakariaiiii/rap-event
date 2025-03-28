@@ -6,7 +6,7 @@
     <title>مجتمع الراب | rap community </title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preload" href="assets/Raprap.jpg" as="image">
+    <link rel="preload" href="./images/Raprap.jpg" as="image">
     
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
@@ -755,7 +755,7 @@
                     <div class="artist-info">
                         <h3 class="artist-name">Shaoline</h3>
                         <span class="artist-role">فنان راب</span>
-                        <p class="artist-bio">فنان مميز بأسلوبه الخاص</p>
+                        <p class="artist-bio">الفنان المميز بأسلوبه الخاص</p>
                         <div class="social-links">
                             <a href="https://www.instagram.com/shaolineee1/" class="social-link instagram-link" target="_blank">
                                 <i class="fab fa-instagram"></i>
@@ -1008,6 +1008,7 @@
     </footer>
     
     <script>
+        // Firebase configuration with complete appId
         const firebaseConfig = {
             apiKey: "BIdhsU2wkXb6Jf4m7WI4ruPga8c_GiYaho-8iLXC2V2-dMItY99J6nX1uwknrScLJbIpg8T4y_Qw0U2AuqyRBoE",
             authDomain: "rap-votes.firebaseapp.com",
@@ -1015,62 +1016,84 @@
             projectId: "rap-votes",
             storageBucket: "rap-votes.appspot.com",
             messagingSenderId: "282425667438",
-            appId: "1:282425667438:web:abcd1234"
+            appId: "1:282425667438:web:abcd1234" // Replace with your complete appId
         };
 
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // DOM elements
         const voteBtn = document.getElementById('vote-btn');
         const loader = document.getElementById('loader');
         const errorMsg = document.getElementById('error-msg');
         const successMsg = document.getElementById('success-msg');
         
+        // Initialize vote counts
+        const initialVotes = {
+            'BIG A': 0,
+            'mirv48': 0,
+            'Shaoline': 0,
+            'aessa': 0,
+            'krak3n': 0
+        };
+
+        // Check Firebase connection
+        database.ref('.info/connected').on('value', (snapshot) => {
+            if (snapshot.val() === true) {
+                console.log('Connected to Firebase');
+            } else {
+                console.log('Not connected to Firebase');
+                showError('لا يوجد اتصال بقاعدة البيانات');
+            }
+        });
+
+        // Load votes from Firebase
         function loadVotes() {
             return new Promise((resolve) => {
                 database.ref('votes').once('value', (snapshot) => {
-                    const votes = snapshot.val() || {
-                        'BIG A': 0,
-                        'mirv48': 0,
-                        'Shaoline': 0,
-                        'aessa': 0,
-                        'krak3n': 0
-                    };
+                    const votes = snapshot.val() || initialVotes;
                     resolve(votes);
+                }).catch((error) => {
+                    console.error('Error loading votes:', error);
+                    resolve(initialVotes);
                 });
             });
         }
 
-        async function updateResultsUI() {
-            try {
-                const votes = await loadVotes();
-                const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+        // Update results UI with real-time data
+        function setupRealTimeUpdates() {
+            database.ref('votes').on('value', (snapshot) => {
+                const votes = snapshot.val() || initialVotes;
+                updateUIWithVotes(votes);
+            });
+        }
 
-                for (const artist in votes) {
-                    const artistKey = artist.replace(' ', '').replace('3', '');
-                    const votesElement = document.getElementById(`${artistKey}-votes`);
-                    const barElement = document.getElementById(`${artistKey}-bar`);
+        // Update UI with votes data
+        function updateUIWithVotes(votes) {
+            const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+            
+            for (const artist in votes) {
+                const artistKey = artist.toLowerCase().replace(' ', '').replace('3', '');
+                const votesElement = document.getElementById(`${artistKey}-votes`);
+                const barElement = document.getElementById(`${artistKey}-bar`);
 
-                    if (votesElement && barElement) {
-                        votesElement.textContent = votes[artist];
-                        barElement.style.width = totalVotes > 0 ? `${(votes[artist] / totalVotes) * 100}%` : '0%';
-                    }
+                if (votesElement && barElement) {
+                    votesElement.textContent = votes[artist];
+                    barElement.style.width = totalVotes > 0 ? `${(votes[artist] / totalVotes) * 100}%` : '0%';
                 }
-            } catch (error) {
-                console.error('Error loading votes:', error);
             }
         }
 
+        // Register a new vote
         async function registerVote(artistName) {
             try {
                 const votesRef = database.ref('votes/' + artistName);
-                
-                votesRef.transaction((currentVotes) => {
+                await votesRef.transaction((currentVotes) => {
                     return (currentVotes || 0) + 1;
                 });
                 
                 localStorage.setItem('hasVoted', 'true');
-                
                 return true;
             } catch (error) {
                 console.error('Error registering vote:', error);
@@ -1078,10 +1101,12 @@
             }
         }
 
+        // Check if user has already voted
         function hasUserVoted() {
             return localStorage.getItem('hasVoted') === 'true';
         }
 
+        // Submit vote handler
         async function submitVote() {
             const selectedArtist = document.querySelector('input[name="artist"]:checked');
             
@@ -1103,7 +1128,6 @@
                 const success = await registerVote(selectedArtist.value);
                 
                 if (success) {
-                    await updateResultsUI();
                     voteBtn.disabled = true;
                     showSuccess('تم تسجيل تصويتك بنجاح! شكراً لك');
                 } else {
@@ -1117,8 +1141,10 @@
             }
         }
 
+        // Helper functions
         function showLoader(show) {
             loader.style.display = show ? 'block' : 'none';
+            voteBtn.disabled = show;
         }
 
         function showError(message) {
@@ -1138,19 +1164,31 @@
             successMsg.style.display = 'none';
         }
 
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', async () => {
-            await updateResultsUI();
-            
-            setInterval(updateResultsUI, 10000);
-            
-            if (hasUserVoted()) {
-                voteBtn.disabled = true;
-                showSuccess('شكراً لك، لقد صوتت مسبقاً');
+            try {
+                // Load initial votes
+                const votes = await loadVotes();
+                updateUIWithVotes(votes);
+                
+                // Set up real-time updates
+                setupRealTimeUpdates();
+                
+                // Check if user has already voted
+                if (hasUserVoted()) {
+                    voteBtn.disabled = true;
+                    showSuccess('شكراً لك، لقد صوتت مسبقاً');
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showError('حدث خطأ في تحميل البيانات الأولية');
             }
         });
 
+        // Event listeners
         voteBtn.addEventListener('click', submitVote);
 
+        // Mobile menu toggle
         function toggleMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
             const overlay = document.getElementById('overlay');
@@ -1161,6 +1199,7 @@
             document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
         }
 
+        // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1174,6 +1213,7 @@
             });
         });
 
+        // Fade-in animation for elements
         const fadeElements = document.querySelectorAll('.fade-in');
         const fadeInObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
