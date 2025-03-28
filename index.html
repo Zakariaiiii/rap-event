@@ -6,10 +6,7 @@
     <title>مجتمع الراب | BIG A & mirv48</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <link rel="preload" href="assets/Rapnight.jpg" as="image">
     
     <style>
         :root {
@@ -36,6 +33,7 @@
             color: var(--light-color);
             min-height: 100vh;
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
         .header {
@@ -711,7 +709,7 @@
             <div class="artists-container">
                 <div class="artist-card fade-in delay-1">
                     <div class="artist-image-container">
-                        <img src="images/artist.jpg" alt="BIG A" class="artist-image">
+                        <img src="images/artist.jpg" alt="BIG A" class="artist-image" loading="lazy">
                     </div>
                     <div class="artist-info">
                         <h3 class="artist-name">BIG A</h3>
@@ -730,7 +728,7 @@
                 
                 <div class="artist-card fade-in delay-2">
                     <div class="artist-image-container">
-                        <img src="images/mirv48.jpg" alt="mirv48" class="artist-image">
+                        <img src="images/mirv48.jpg" alt="mirv48" class="artist-image" loading="lazy">
                     </div>
                     <div class="artist-info">
                         <h3 class="artist-name">mirv48</h3>
@@ -746,10 +744,10 @@
                         </div>
                     </div>
                 </div>
-
+        
                 <div class="artist-card fade-in delay-1">
                     <div class="artist-image-container">
-                        <img src="./images/Shaoline.jpg" alt="Shaoline" class="artist-image">
+                        <img src="./images/Shaoline.jpg" alt="Shaoline" class="artist-image" loading="lazy">
                     </div>
                     <div class="artist-info">
                         <h3 class="artist-name">Shaoline</h3>
@@ -765,10 +763,10 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="artist-card fade-in delay-2">
+        
+                <div class="artist-card fade-in delay-1">
                     <div class="artist-image-container">
-                        <img src="./images/Aessa.jpg" alt="Aessa" class="artist-image">
+                        <img src="./images/Aessa.jpg" alt="Aessa" class="artist-image" loading="lazy">
                     </div>
                     <div class="artist-info">
                         <h3 class="artist-name">Aessa</h3>
@@ -779,6 +777,25 @@
                                 <i class="fab fa-instagram"></i>
                             </a>
                             <a href="https://www.youtube.com/@Aessa" class="social-link youtube-link" target="_blank">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="artist-card fade-in delay-2">
+                    <div class="artist-image-container">
+                        <img src="./images/KRAK3N.jpg" alt="krak3n" class="artist-image" loading="lazy">
+                    </div>
+                    <div class="artist-info">
+                        <h3 class="artist-name">krak3n</h3>
+                        <span class="artist-role">فنان راب</span>
+                        <p class="artist-bio">موهبة صاعدة بقوة في عالم الراب</p>
+                        <div class="social-links">
+                            <a href="https://www.instagram.com/eyokrak3n/" class="social-link instagram-link" target="_blank">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="https://www.youtube.com/@eyokrak3n" class="social-link youtube-link" target="_blank">
                                 <i class="fab fa-youtube"></i>
                             </a>
                         </div>
@@ -814,6 +831,11 @@
                     <span>aessa</span>
                 </label>
                 
+                <label class="vote-option">
+                    <input type="radio" name="artist" value="krak3n"> 
+                    <span>krak3n</span>
+                </label>
+
                 <div class="loader" id="loader">
                     <i class="fas fa-spinner fa-spin"></i> جاري معالجة التصويت...
                 </div>
@@ -839,7 +861,11 @@
                     <p><strong>aessa:</strong> <span id="aessa-votes">0</span> صوت</p>
                     <div class="bar" style="width: 0%" id="aessa-bar"></div>
                 </div>
-            </div>
+                </div> class="result-bar">
+                    <p><strong>krak3n:</strong> <span id="krak3n-votes">0</span> صوت</p>
+                    <div class="bar" style="width: 0%" id="krak3n-bar"></div>
+                </div>
+               </div>
         </section>
         
         <section id="streamers" class="fade-in delay-1">
@@ -847,7 +873,7 @@
             
             <div class="streamers-container">
                 <div class="streamer-card fade-in delay-2">
-                    <img src="./images/ilyaselmaliki.jpg" alt="ilyaselmaliki" class="streamer-avatar">
+                    <img src="./images/ilyaselmaliki.jpg" alt="ilyaselmaliki" class="streamer-avatar" loading="lazy">
                     <h3 class="streamer-name">ilyaselmaliki</h3>
                     <div class="streamer-platform">
                         <i class="fas fa-tv"></i>
@@ -857,7 +883,7 @@
                 </div>
                 
                 <div class="streamer-card fade-in delay-1">
-                    <img src="./images/vodkafunky.jpg" alt="vodkafunky" class="streamer-avatar">
+                    <img src="./images/vodkafunky.jpg" alt="vodkafunky" class="streamer-avatar" loading="lazy">
                     <h3 class="streamer-name">vodkafunky</h3>
                     <div class="streamer-platform">
                         <i class="fas fa-tv"></i>
@@ -867,7 +893,7 @@
                 </div>
                 
                 <div class="streamer-card fade-in">
-                    <img src="./images/Bougassa.jpg" alt="Bougassaa" class="streamer-avatar">
+                    <img src="./images/Bougassa.jpg" alt="Bougassaa" class="streamer-avatar" loading="lazy">
                     <h3 class="streamer-name">Bougassaa</h3>
                     <div class="streamer-platform">
                         <i class="fas fa-tv"></i>
@@ -877,7 +903,7 @@
                 </div>
                 
                 <div class="streamer-card fade-in delay-1">
-                    <img src="./images/Nahoule.jpg" alt="Nahoule82k" class="streamer-avatar">
+                    <img src="./images/Nahoule.jpg" alt="Nahoule82k" class="streamer-avatar" loading="lazy">
                     <h3 class="streamer-name">Nahoule82k</h3>
                     <div class="streamer-platform">
                         <i class="fas fa-tv"></i>
@@ -887,7 +913,7 @@
                 </div>
                 
                 <div class="streamer-card fade-in delay-2">
-                    <img src="./images/tooto.jpg" alt="El Grandé Toto" class="streamer-avatar">
+                    <img src="./images/tooto.jpg" alt="El Grandé Toto" class="streamer-avatar" loading="lazy">
                     <h3 class="streamer-name">El Grandé Toto</h3>
                     <div class="streamer-platform">
                         <i class="fas fa-tv"></i>
@@ -904,7 +930,7 @@
             <div class="videos-container">
                 <a href="https://www.youtube.com/watch?v=nVYAEtBvmgA" class="video-card fade-in" target="_blank">
                     <div class="video-thumbnail">
-                        <img src="./images/artist.jpg" alt="BIG A">
+                        <img src="./images/artist.jpg" alt="BIG A" loading="lazy">
                         <div class="play-icon"><i class="fas fa-play"></i></div>
                     </div>
                     <div class="video-info">
@@ -918,7 +944,7 @@
                 
                 <a href="https://www.youtube.com/watch?v=YED2ShSBU10" class="video-card fade-in delay-1" target="_blank">
                     <div class="video-thumbnail">
-                        <img src="./images/mirv48.jpg" alt="mirv48">
+                        <img src="./images/mirv48.jpg" alt="mirv48" loading="lazy">
                         <div class="play-icon"><i class="fas fa-play"></i></div>
                     </div>
                     <div class="video-info">
@@ -932,7 +958,7 @@
                 
                 <a href="https://www.youtube.com/watch?v=GKdfyp3-sTA" class="video-card fade-in delay-2" target="_blank">
                     <div class="video-thumbnail">
-                        <img src="./images/Shaoline.jpg" alt="Shaoline">
+                        <img src="./images/Shaoline.jpg" alt="Shaoline" loading="lazy">
                         <div class="play-icon"><i class="fas fa-play"></i></div> 
                     </div>
                     <div class="video-info">
@@ -943,7 +969,21 @@
                     </div>
                 </a>
         
+                <a href="https://www.youtube.com/watch?v=cDU3Ezs59C0" class="video-card fade-in delay-2" target="_blank">
+                    <div class="video-thumbnail">
+                        <img src="./images/KRAK3N.jpg" alt="krak3n" loading="lazy">
+                        <div class="play-icon"><i class="fas fa-play"></i></div> 
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">KRAK3N - stylofad official audio</h3>
+                        <div class="video-meta">
+                            <span>14K مشاهدة</span>
+                        </div>
+                    </div>
+                </a>
+
                 <div class="bobony-family">
+                </div>  
                     <a href="https://discord.gg/bobonyfamily" class="watermark" target="_blank">Bobony Family</a>
                 </div>
             </div>
@@ -966,6 +1006,116 @@
     </footer>
     
     <script>
+        const voteBtn = document.getElementById('vote-btn');
+        const loader = document.getElementById('loader');
+        const errorMsg = document.getElementById('error-msg');
+        const successMsg = document.getElementById('success-msg');
+        
+        let votesData = {
+            'BIG A': 0,
+            'mirv48': 0,
+            'Shaoline': 0,
+            'aessa': 0
+        };
+        
+        function loadVotes() {
+            const savedVotes = localStorage.getItem('rapCommunityVotes');
+            if (savedVotes) {
+                votesData = JSON.parse(savedVotes);
+            }
+            updateResultsUI();
+        }
+        
+        function saveVotes() {
+            localStorage.setItem('rapCommunityVotes', JSON.stringify(votesData));
+        }
+        
+        function checkIfVoted() {
+            const hasVoted = localStorage.getItem('rapCommunityHasVoted');
+            if (hasVoted) {
+                voteBtn.disabled = true;
+                showSuccess('شكراً لك، لقد صوتت مسبقاً');
+            }
+        }
+        
+        function updateResultsUI() {
+            const total = votesData['BIG A'] + votesData['mirv48'] + votesData['Shaoline'] + votesData['aessa'];
+            
+            document.getElementById('bigA-votes').textContent = votesData['BIG A'];
+            document.getElementById('mirv48-votes').textContent = votesData['mirv48'];
+            document.getElementById('shaoline-votes').textContent = votesData['Shaoline'];
+            document.getElementById('aessa-votes').textContent = votesData['aessa'];
+            
+            if (total > 0) {
+                document.getElementById('bigA-bar').style.width = `${(votesData['BIG A'] / total) * 100}%`;
+                document.getElementById('mirv48-bar').style.width = `${(votesData['mirv48'] / total) * 100}%`;
+                document.getElementById('shaoline-bar').style.width = `${(votesData['Shaoline'] / total) * 100}%`;
+                document.getElementById('aessa-bar').style.width = `${(votesData['aessa'] / total) * 100}%`;
+            }
+        }
+        
+        function submitVote() {
+            const selectedArtist = document.querySelector('input[name="artist"]:checked');
+            
+            if (!selectedArtist) {
+                showError('الرجاء اختيار فنان قبل التصويت');
+                return;
+            }
+            
+            showLoader(true);
+            hideMessages();
+            
+            setTimeout(() => {
+                const artistName = selectedArtist.value;
+                
+                if (localStorage.getItem('rapCommunityHasVoted')) {
+                    showLoader(false);
+                    voteBtn.disabled = true;
+                    showError('لقد قمت بالتصويت مسبقاً!');
+                    return;
+                }
+                
+                votesData[artistName]++;
+                
+                saveVotes();
+                localStorage.setItem('rapCommunityHasVoted', 'true');
+                
+                updateResultsUI();
+                
+                showLoader(false);
+                voteBtn.disabled = true;
+                showSuccess('تم تسجيل تصويتك بنجاح! شكراً لك');
+            }, 1000);
+        }
+        
+        function showLoader(show) {
+            loader.style.display = show ? 'block' : 'none';
+        }
+        
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+            successMsg.style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            successMsg.textContent = message;
+            successMsg.style.display = 'block';
+            errorMsg.style.display = 'none';
+        }
+        
+        function hideMessages() {
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadVotes();
+            checkIfVoted();
+        });
+        
+        voteBtn.addEventListener('click', submitVote);
+        
         function toggleMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
             const overlay = document.getElementById('overlay');
@@ -1012,154 +1162,6 @@
             element.style.transform = 'translateY(20px)';
             element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             fadeInObserver.observe(element);
-        });
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyABC...",
-            authDomain: "your-project.firebaseapp.com",
-            databaseURL: "https://your-project.firebaseio.com",
-            projectId: "your-project",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "123456...",
-            appId: "1:123456...:web:abc..."
-        };
-
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const auth = firebase.auth();
-
-        const voteBtn = document.getElementById('vote-btn');
-        const loader = document.getElementById('loader');
-        const errorMsg = document.getElementById('error-msg');
-        const successMsg = document.getElementById('success-msg');
-
-        let hasVoted = false;
-
-        async function submitVote() {
-            const selectedArtist = document.querySelector('input[name="artist"]:checked');
-            
-            if (!selectedArtist) {
-                showError('الرجاء اختيار فنان قبل التصويت');
-                return;
-            }
-
-            try {
-                showLoader(true);
-                hideMessages();
-                
-                if (!auth.currentUser) {
-                    await auth.signInAnonymously();
-                }
-
-                const userId = auth.currentUser.uid;
-                const artistName = selectedArtist.value;
-                
-                const voteSnapshot = await database.ref(`userVotes/${userId}`).once('value');
-                if (voteSnapshot.exists()) {
-                    hasVoted = true;
-                    voteBtn.disabled = true;
-                    showError('لقد قمت بالتصويت مسبقاً!');
-                    return;
-                }
-
-                await database.ref(`userVotes/${userId}`).set({
-                    artist: artistName,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-
-                await database.ref(`votes/${artistName}`).transaction((currentCount) => {
-                    return (currentCount || 0) + 1;
-                });
-
-                hasVoted = true;
-                voteBtn.disabled = true;
-                showSuccess('تم تسجيل تصويتك بنجاح!');
-                updateResults();
-            } catch (error) {
-                console.error('Error:', error);
-                showError('حدث خطأ أثناء التصويت. الرجاء المحاولة لاحقاً');
-            } finally {
-                showLoader(false);
-            }
-        }
-
-        async function updateResults() {
-            try {
-                const snapshot = await database.ref('votes').once('value');
-                const votes = snapshot.val() || {
-                    'BIG A': 0,
-                    'mirv48': 0,
-                    'Shaoline': 0,
-                    'aessa': 0
-                };
-
-                document.getElementById('bigA-votes').textContent = votes['BIG A'] || 0;
-                document.getElementById('mirv48-votes').textContent = votes['mirv48'] || 0;
-                document.getElementById('shaoline-votes').textContent = votes['Shaoline'] || 0;
-                document.getElementById('aessa-votes').textContent = votes['aessa'] || 0;
-
-                const total = (votes['BIG A'] || 0) + (votes['mirv48'] || 0) + (votes['Shaoline'] || 0) + (votes['aessa'] || 0);
-                
-                if (total > 0) {
-                    document.getElementById('bigA-bar').style.width = `${((votes['BIG A'] || 0) / total) * 100}%`;
-                    document.getElementById('mirv48-bar').style.width = `${((votes['mirv48'] || 0) / total) * 100}%`;
-                    document.getElementById('shaoline-bar').style.width = `${((votes['Shaoline'] || 0) / total) * 100}%`;
-                    document.getElementById('aessa-bar').style.width = `${((votes['aessa'] || 0) / total) * 100}%`;
-                }
-            } catch (error) {
-                console.error('Error fetching results:', error);
-            }
-        }
-
-        async function checkPreviousVote() {
-            try {
-                if (!auth.currentUser) {
-                    await auth.signInAnonymously();
-                }
-                
-                const userId = auth.currentUser.uid;
-                const voteSnapshot = await database.ref(`userVotes/${userId}`).once('value');
-                
-                if (voteSnapshot.exists()) {
-                    hasVoted = true;
-                    voteBtn.disabled = true;
-                    showSuccess('شكراً لك، لقد صوتت مسبقاً');
-                }
-                
-                updateResults();
-            } catch (error) {
-                console.error('Error checking previous vote:', error);
-            }
-        }
-
-        function showLoader(show) {
-            loader.style.display = show ? 'block' : 'none';
-        }
-
-        function showError(message) {
-            errorMsg.textContent = message;
-            errorMsg.style.display = 'block';
-            successMsg.style.display = 'none';
-        }
-
-        function showSuccess(message) {
-            successMsg.textContent = message;
-            successMsg.style.display = 'block';
-            errorMsg.style.display = 'none';
-        }
-
-        function hideMessages() {
-            errorMsg.style.display = 'none';
-            successMsg.style.display = 'none';
-        }
-
-        voteBtn.addEventListener('click', submitVote);
-
-        // عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', () => {
-            checkPreviousVote();
-            
-            setInterval(updateResults, 10000);
         });
     </script>
 </body>
