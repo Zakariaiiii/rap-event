@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preload" href="assets/Rapnight.jpg" as="image">
     
+    <!-- إضافة مكتبة Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    
     <style>
         :root {
             --primary-color: #4CAF50;
@@ -1005,161 +1009,162 @@
     </footer>
     
     <script>
+        // تهيئة Firebase
+        const firebaseConfig = {
+            apiKey: "BIdhsU2wkXb6Jf4m7WI4ruPga8c_GiYaho-8iLXC2V2-dMItY99J6nX1uwknrScLJbIpg8T4y_Qw0U2AuqyRBoE",
+            authDomain: "rap-votes.firebaseapp.com",
+            databaseURL: "https://rap-votes-default-rtdb.firebaseio.com",
+            projectId: "rap-votes",
+            storageBucket: "rap-votes.appspot.com",
+            messagingSenderId: "282425667438",
+            appId: "1:282425667438:web:abcd1234"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         const voteBtn = document.getElementById('vote-btn');
         const loader = document.getElementById('loader');
         const errorMsg = document.getElementById('error-msg');
         const successMsg = document.getElementById('success-msg');
         
-        // مفاتيح التخزين
-        const VOTES_KEY = 'rapCommunityVotes';
-        const VOTERS_KEY = 'rapCommunityVoters';
-        
-        // بيانات التصويت الافتراضية
-        const DEFAULT_VOTES = {
-            'BIG A': 0,
-            'mirv48': 0,
-            'Shaoline': 0,
-            'aessa': 0,
-            'krak3n': 0
-        };
-    
-        // إنشاء معرف فريد للمستخدم
-        function getVoterId() {
-            let voterId = localStorage.getItem('voterId');
-            if (!voterId) {
-                voterId = 'voter-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('voterId', voterId);
-            }
-            return voterId;
-        }
-    
-        // تحميل بيانات التصويت
+        // تحميل نتائج التصويت من Firebase
         function loadVotes() {
-            const savedVotes = localStorage.getItem(VOTES_KEY);
-            return savedVotes ? JSON.parse(savedVotes) : {...DEFAULT_VOTES};
+            return new Promise((resolve) => {
+                database.ref('votes').once('value', (snapshot) => {
+                    const votes = snapshot.val() || {
+                        'BIG A': 0,
+                        'mirv48': 0,
+                        'Shaoline': 0,
+                        'aessa': 0,
+                        'krak3n': 0
+                    };
+                    resolve(votes);
+                });
+            });
         }
-    
-        // حفظ بيانات التصويت
-        function saveVotes(votes) {
-            localStorage.setItem(VOTES_KEY, JSON.stringify(votes));
+
+        // تحديث واجهة النتائج
+        async function updateResultsUI() {
+            try {
+                const votes = await loadVotes();
+                const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+
+                for (const artist in votes) {
+                    const artistKey = artist.replace(' ', '').replace('3', '');
+                    const votesElement = document.getElementById(`${artistKey}-votes`);
+                    const barElement = document.getElementById(`${artistKey}-bar`);
+
+                    if (votesElement && barElement) {
+                        votesElement.textContent = votes[artist];
+                        barElement.style.width = totalVotes > 0 ? `${(votes[artist] / totalVotes) * 100}%` : '0%';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading votes:', error);
+            }
         }
-    
-        // تحميل قائمة المصوتين
-        function loadVoters() {
-            const savedVoters = localStorage.getItem(VOTERS_KEY);
-            return savedVoters ? JSON.parse(savedVoters) : [];
+
+        // تسجيل تصويت جديد
+        async function registerVote(artistName) {
+            try {
+                const votesRef = database.ref('votes/' + artistName);
+                
+                // استخدام transaction لضمان التحديث الآمن
+                votesRef.transaction((currentVotes) => {
+                    return (currentVotes || 0) + 1;
+                });
+                
+                // حفظ أن المستخدم قد صوت
+                localStorage.setItem('hasVoted', 'true');
+                
+                return true;
+            } catch (error) {
+                console.error('Error registering vote:', error);
+                return false;
+            }
         }
-    
-        // حفظ قائمة المصوتين
-        function saveVoters(voters) {
-            localStorage.setItem(VOTERS_KEY, JSON.stringify(voters));
-        }
-    
+
         // التحقق إذا كان المستخدم قد صوت مسبقاً
         function hasUserVoted() {
-            const voterId = getVoterId();
-            const voters = loadVoters();
-            return voters.includes(voterId);
+            return localStorage.getItem('hasVoted') === 'true';
         }
-    
-        // تسجيل تصويت جديد
-        function registerVote(artistName) {
-            const votes = loadVotes();
-            votes[artistName]++;
-            saveVotes(votes);
-            
-            const voterId = getVoterId();
-            const voters = loadVoters();
-            voters.push(voterId);
-            saveVoters(voters);
-        }
-    
-        // تحديث واجهة النتائج
-        function updateResultsUI() {
-            const votes = loadVotes();
-            const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
-    
-            for (const artist in votes) {
-                const artistKey = artist.replace(' ', '').replace('3', '');
-                const votesElement = document.getElementById(`${artistKey}-votes`);
-                const barElement = document.getElementById(`${artistKey}-bar`);
-    
-                if (votesElement && barElement) {
-                    votesElement.textContent = votes[artist];
-                    barElement.style.width = totalVotes > 0 ? `${(votes[artist] / totalVotes) * 100}%` : '0%';
-                }
-            }
-        }
-    
+
         // معالجة التصويت
-        function submitVote() {
+        async function submitVote() {
             const selectedArtist = document.querySelector('input[name="artist"]:checked');
             
             if (!selectedArtist) {
                 showError('الرجاء اختيار فنان قبل التصويت');
                 return;
             }
-    
+
             if (hasUserVoted()) {
                 showError('لقد قمت بالتصويت مسبقاً!');
                 voteBtn.disabled = true;
                 return;
             }
-    
+
             showLoader(true);
             hideMessages();
-    
-            setTimeout(() => {
-                try {
-                    registerVote(selectedArtist.value);
-                    updateResultsUI();
-                    
+
+            try {
+                const success = await registerVote(selectedArtist.value);
+                
+                if (success) {
+                    await updateResultsUI();
                     voteBtn.disabled = true;
                     showSuccess('تم تسجيل تصويتك بنجاح! شكراً لك');
-                } catch (error) {
+                } else {
                     showError('حدث خطأ أثناء حفظ التصويت. الرجاء المحاولة لاحقاً');
-                    console.error('Error saving vote:', error);
-                } finally {
-                    showLoader(false);
                 }
-            }, 500);
+            } catch (error) {
+                console.error('Error:', error);
+                showError('حدث خطأ غير متوقع. الرجاء المحاولة لاحقاً');
+            } finally {
+                showLoader(false);
+            }
         }
-    
+
         // وظائف مساعدة للواجهة
         function showLoader(show) {
             loader.style.display = show ? 'block' : 'none';
         }
-    
+
         function showError(message) {
             errorMsg.textContent = message;
             errorMsg.style.display = 'block';
             successMsg.style.display = 'none';
         }
-    
+
         function showSuccess(message) {
             successMsg.textContent = message;
             successMsg.style.display = 'block';
             errorMsg.style.display = 'none';
         }
-    
+
         function hideMessages() {
             errorMsg.style.display = 'none';
             successMsg.style.display = 'none';
         }
-    
+
         // تهيئة الصفحة
-        document.addEventListener('DOMContentLoaded', () => {
-            updateResultsUI();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await updateResultsUI();
+            
+            // تحديث النتائج تلقائيا كل 10 ثواني
+            setInterval(updateResultsUI, 10000);
             
             if (hasUserVoted()) {
                 voteBtn.disabled = true;
                 showSuccess('شكراً لك، لقد صوتت مسبقاً');
             }
         });
-    
+
         // إعداد مستمع الأحداث
         voteBtn.addEventListener('click', submitVote);
-    
+
         // وظائف القائمة المتنقلة والتنقل السلس
         function toggleMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
@@ -1170,7 +1175,7 @@
             
             document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
         }
-    
+
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1183,7 +1188,7 @@
                 }
             });
         });
-    
+
         // تأثيرات الظهور
         const fadeElements = document.querySelectorAll('.fade-in');
         const fadeInObserver = new IntersectionObserver((entries) => {
@@ -1194,7 +1199,7 @@
                 }
             });
         }, { threshold: 0.1 });
-    
+
         fadeElements.forEach(element => {
             element.style.opacity = '0';
             element.style.transform = 'translateY(20px)';
