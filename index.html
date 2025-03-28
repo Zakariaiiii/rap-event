@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مجتمع الراب | BIG A & mirv48</title>
+    <title>مجتمع الراب | rap community </title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preload" href="assets/Rapnight.jpg" as="image">
+    <link rel="preload" href="assets/Raprap.jpg" as="image">
     
-    <!-- إضافة مكتبة Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     
@@ -718,7 +717,7 @@
                     <div class="artist-info">
                         <h3 class="artist-name">BIG A</h3>
                         <span class="artist-role">فنان راب</span>
-                        <p class="artist-bio">فنان راب موهوب يتميز بأسلوبه الفريد</p>
+                        <p class="artist-bio">فنان راب موهوب يتميز بأسلوبه الفريد والجديد</p>
                         <div class="social-links">
                             <a href="https://www.instagram.com/callme_big_a" class="social-link instagram-link" target="_blank">
                                 <i class="fab fa-instagram"></i>
@@ -1009,7 +1008,6 @@
     </footer>
     
     <script>
-        // تهيئة Firebase
         const firebaseConfig = {
             apiKey: "BIdhsU2wkXb6Jf4m7WI4ruPga8c_GiYaho-8iLXC2V2-dMItY99J6nX1uwknrScLJbIpg8T4y_Qw0U2AuqyRBoE",
             authDomain: "rap-votes.firebaseapp.com",
@@ -1020,7 +1018,6 @@
             appId: "1:282425667438:web:abcd1234"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
@@ -1029,7 +1026,6 @@
         const errorMsg = document.getElementById('error-msg');
         const successMsg = document.getElementById('success-msg');
         
-        // تحميل نتائج التصويت من Firebase
         function loadVotes() {
             return new Promise((resolve) => {
                 database.ref('votes').once('value', (snapshot) => {
@@ -1045,7 +1041,6 @@
             });
         }
 
-        // تحديث واجهة النتائج
         async function updateResultsUI() {
             try {
                 const votes = await loadVotes();
@@ -1066,17 +1061,14 @@
             }
         }
 
-        // تسجيل تصويت جديد
         async function registerVote(artistName) {
             try {
                 const votesRef = database.ref('votes/' + artistName);
                 
-                // استخدام transaction لضمان التحديث الآمن
                 votesRef.transaction((currentVotes) => {
                     return (currentVotes || 0) + 1;
                 });
                 
-                // حفظ أن المستخدم قد صوت
                 localStorage.setItem('hasVoted', 'true');
                 
                 return true;
@@ -1086,12 +1078,10 @@
             }
         }
 
-        // التحقق إذا كان المستخدم قد صوت مسبقاً
         function hasUserVoted() {
             return localStorage.getItem('hasVoted') === 'true';
         }
 
-        // معالجة التصويت
         async function submitVote() {
             const selectedArtist = document.querySelector('input[name="artist"]:checked');
             
@@ -1127,7 +1117,6 @@
             }
         }
 
-        // وظائف مساعدة للواجهة
         function showLoader(show) {
             loader.style.display = show ? 'block' : 'none';
         }
@@ -1149,11 +1138,9 @@
             successMsg.style.display = 'none';
         }
 
-        // تهيئة الصفحة
         document.addEventListener('DOMContentLoaded', async () => {
             await updateResultsUI();
             
-            // تحديث النتائج تلقائيا كل 10 ثواني
             setInterval(updateResultsUI, 10000);
             
             if (hasUserVoted()) {
@@ -1162,10 +1149,8 @@
             }
         });
 
-        // إعداد مستمع الأحداث
         voteBtn.addEventListener('click', submitVote);
 
-        // وظائف القائمة المتنقلة والتنقل السلس
         function toggleMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
             const overlay = document.getElementById('overlay');
@@ -1189,7 +1174,6 @@
             });
         });
 
-        // تأثيرات الظهور
         const fadeElements = document.querySelectorAll('.fade-in');
         const fadeInObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
