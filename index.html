@@ -1029,6 +1029,15 @@
         const errorMsg = document.getElementById('error-msg');
         const successMsg = document.getElementById('success-msg');
         
+        // Artist mapping to ensure consistent naming
+        const artistKeys = {
+            'BIG A': 'bigA',
+            'mirv48': 'mirv48',
+            'Shaoline': 'shaoline',
+            'aessa': 'aessa',
+            'krak3n': 'krak3n'
+        };
+
         // Initialize vote counts
         const initialVotes = {
             'BIG A': 0,
@@ -1053,6 +1062,14 @@
             return new Promise((resolve) => {
                 database.ref('votes').once('value', (snapshot) => {
                     const votes = snapshot.val() || initialVotes;
+                    
+                    // Ensure all artists exist in the votes object
+                    for (const artist in initialVotes) {
+                        if (!votes.hasOwnProperty(artist)) {
+                            votes[artist] = 0;
+                        }
+                    }
+                    
                     resolve(votes);
                 }).catch((error) => {
                     console.error('Error loading votes:', error);
@@ -1074,7 +1091,7 @@
             const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
             
             for (const artist in votes) {
-                const artistKey = artist.toLowerCase().replace(' ', '').replace('3', '');
+                const artistKey = artistKeys[artist];
                 const votesElement = document.getElementById(`${artistKey}-votes`);
                 const barElement = document.getElementById(`${artistKey}-bar`);
 
@@ -1086,8 +1103,15 @@
         }
 
         // Register a new vote
-        async function registerVote(artistName) {
+        async function registerVote(artistValue) {
             try {
+                // Find the correct artist name from the keys
+                const artistName = Object.keys(artistKeys).find(key => artistKeys[key] === artistValue.toLowerCase());
+                
+                if (!artistName) {
+                    throw new Error('Invalid artist selected');
+                }
+                
                 const votesRef = database.ref('votes/' + artistName);
                 await votesRef.transaction((currentVotes) => {
                     return (currentVotes || 0) + 1;
