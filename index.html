@@ -804,9 +804,28 @@
                         </div>
                     </div>
                 </div>
+    
+                <div class="artist-card fade-in delay-3">
+                    <div class="artist-image-container">
+                        <img src="./images/rouikos.jpg" alt="rouikos" class="artist-image" loading="lazy">
+                    </div>
+                    <div class="artist-info">
+                        <h3 class="artist-name">rouikos</h3>
+                        <span class="artist-role">فنان راب</span>
+                        <p class="artist-bio">فنان راب متميز بأسلوبه الخاص وإيقاعاته الجذابة</p>
+                        <div class="social-links">
+                            <a href="https://www.instagram.com/itsme_rouikos/" class="social-link instagram-link" target="_blank">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="https://www.youtube.com/@rouikos1510" class="social-link youtube-link" target="_blank">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
-
+    
         <section id="vote" class="fade-in delay-2">
             <h2 class="section-title">صوّت لفنانك المفضل</h2>
             
@@ -828,7 +847,7 @@
                     <input type="radio" name="artist" value="Shaoline"> 
                     <span>Shaoline</span>
                 </label>
-
+    
                 <label class="vote-option">
                     <input type="radio" name="artist" value="aessa"> 
                     <span>aessa</span>
@@ -838,7 +857,12 @@
                     <input type="radio" name="artist" value="krak3n"> 
                     <span>krak3n</span>
                 </label>
-
+    
+                <label class="vote-option">
+                    <input type="radio" name="artist" value="rouikos"> 
+                    <span>rouikos</span>
+                </label>
+    
                 <div class="loader" id="loader">
                     <i class="fas fa-spinner fa-spin"></i> جاري معالجة التصويت...
                 </div>
@@ -868,9 +892,13 @@
                     <p><strong>krak3n:</strong> <span id="krak3n-votes">0</span> صوت</p>
                     <div class="bar" style="width: 0%" id="krak3n-bar"></div>
                 </div>
+                <div class="result-bar">
+                    <p><strong>rouikos:</strong> <span id="rouikos-votes">0</span> صوت</p>
+                    <div class="bar" style="width: 0%" id="rouikos-bar"></div>
+                </div>
             </div>
         </section>
-        
+
         <section id="streamers" class="fade-in delay-1">
             <h2 class="section-title">البث المباشر</h2>
             
@@ -1035,7 +1063,8 @@
             'mirv48': 'mirv48',
             'Shaoline': 'shaoline',
             'aessa': 'aessa',
-            'krak3n': 'krak3n'
+            'krak3n': 'krak3n',
+            'rouikos': 'rouikod'
         };
 
         // Initialize vote counts
@@ -1044,7 +1073,8 @@
             'mirv48': 0,
             'Shaoline': 0,
             'aessa': 0,
-            'krak3n': 0
+            'krak3n': 0,
+            'rouikos': 0
         };
 
         // Check Firebase connection
