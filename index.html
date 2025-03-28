@@ -213,6 +213,33 @@
             transition: width 0.5s ease;
         }
 
+        .error-message {
+            color: #ff4444;
+            text-align: center;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--primary-color);
+            text-align: center;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        #vote-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .artists-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -764,6 +791,9 @@
             <h2 class="section-title">صوّت لفنانك المفضل</h2>
             
             <div class="vote-container">
+                <div class="error-message" id="error-msg"></div>
+                <div class="success-message" id="success-msg"></div>
+                
                 <label class="vote-option">
                     <input type="radio" name="artist" value="BIG A"> 
                     <span>BIG A</span>
@@ -783,7 +813,10 @@
                     <input type="radio" name="artist" value="aessa"> 
                     <span>aessa</span>
                 </label>
-
+                
+                <div class="loader" id="loader">
+                    <i class="fas fa-spinner fa-spin"></i> جاري معالجة التصويت...
+                </div>
             </div>
             
             <button id="vote-btn">إرسال التصويت</button>
@@ -981,37 +1014,153 @@
             fadeInObserver.observe(element);
         });
 
-        document.getElementById('vote-btn').addEventListener('click', function() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyABC...",
+            authDomain: "your-project.firebaseapp.com",
+            databaseURL: "https://your-project.firebaseio.com",
+            projectId: "your-project",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456...",
+            appId: "1:123456...:web:abc..."
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        const voteBtn = document.getElementById('vote-btn');
+        const loader = document.getElementById('loader');
+        const errorMsg = document.getElementById('error-msg');
+        const successMsg = document.getElementById('success-msg');
+
+        let hasVoted = false;
+
+        async function submitVote() {
             const selectedArtist = document.querySelector('input[name="artist"]:checked');
             
-            if (selectedArtist) {
-                alert(`شكراً لتصويتك لـ ${selectedArtist.value}!`);
-                updateVotes(selectedArtist.value);
-            } else {
-                alert('الرجاء اختيار فنان قبل التصويت');
+            if (!selectedArtist) {
+                showError('الرجاء اختيار فنان قبل التصويت');
+                return;
             }
-        });
 
-        function updateVotes(artist) {
-            const votes = {
-                'BIG A': Math.floor(Math.random() * 100) + 1,
-                'mirv48': Math.floor(Math.random() * 100) + 1,
-                'Shaoline': Math.floor(Math.random() * 100) + 1
-            };
-            
-            document.getElementById('bigA-votes').textContent = votes['BIG A'];
-            document.getElementById('mirv48-votes').textContent = votes['mirv48'];
-            document.getElementById('shaoline-votes').textContent = votes['Shaoline'];
-            
-            const totalVotes = votes['BIG A'] + votes['mirv48'] + votes['Shaoline'];
-            if (totalVotes > 0) {
-                document.getElementById('bigA-bar').style.width = `${(votes['BIG A'] / totalVotes) * 100}%`;
-                document.getElementById('mirv48-bar').style.width = `${(votes['mirv48'] / totalVotes) * 100}%`;
-                document.getElementById('shaoline-bar').style.width = `${(votes['Shaoline'] / totalVotes) * 100}%`;
+            try {
+                showLoader(true);
+                hideMessages();
+                
+                if (!auth.currentUser) {
+                    await auth.signInAnonymously();
+                }
+
+                const userId = auth.currentUser.uid;
+                const artistName = selectedArtist.value;
+                
+                const voteSnapshot = await database.ref(`userVotes/${userId}`).once('value');
+                if (voteSnapshot.exists()) {
+                    hasVoted = true;
+                    voteBtn.disabled = true;
+                    showError('لقد قمت بالتصويت مسبقاً!');
+                    return;
+                }
+
+                await database.ref(`userVotes/${userId}`).set({
+                    artist: artistName,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                await database.ref(`votes/${artistName}`).transaction((currentCount) => {
+                    return (currentCount || 0) + 1;
+                });
+
+                hasVoted = true;
+                voteBtn.disabled = true;
+                showSuccess('تم تسجيل تصويتك بنجاح!');
+                updateResults();
+            } catch (error) {
+                console.error('Error:', error);
+                showError('حدث خطأ أثناء التصويت. الرجاء المحاولة لاحقاً');
+            } finally {
+                showLoader(false);
             }
         }
-    
-        updateVotes();
+
+        async function updateResults() {
+            try {
+                const snapshot = await database.ref('votes').once('value');
+                const votes = snapshot.val() || {
+                    'BIG A': 0,
+                    'mirv48': 0,
+                    'Shaoline': 0,
+                    'aessa': 0
+                };
+
+                document.getElementById('bigA-votes').textContent = votes['BIG A'] || 0;
+                document.getElementById('mirv48-votes').textContent = votes['mirv48'] || 0;
+                document.getElementById('shaoline-votes').textContent = votes['Shaoline'] || 0;
+                document.getElementById('aessa-votes').textContent = votes['aessa'] || 0;
+
+                const total = (votes['BIG A'] || 0) + (votes['mirv48'] || 0) + (votes['Shaoline'] || 0) + (votes['aessa'] || 0);
+                
+                if (total > 0) {
+                    document.getElementById('bigA-bar').style.width = `${((votes['BIG A'] || 0) / total) * 100}%`;
+                    document.getElementById('mirv48-bar').style.width = `${((votes['mirv48'] || 0) / total) * 100}%`;
+                    document.getElementById('shaoline-bar').style.width = `${((votes['Shaoline'] || 0) / total) * 100}%`;
+                    document.getElementById('aessa-bar').style.width = `${((votes['aessa'] || 0) / total) * 100}%`;
+                }
+            } catch (error) {
+                console.error('Error fetching results:', error);
+            }
+        }
+
+        async function checkPreviousVote() {
+            try {
+                if (!auth.currentUser) {
+                    await auth.signInAnonymously();
+                }
+                
+                const userId = auth.currentUser.uid;
+                const voteSnapshot = await database.ref(`userVotes/${userId}`).once('value');
+                
+                if (voteSnapshot.exists()) {
+                    hasVoted = true;
+                    voteBtn.disabled = true;
+                    showSuccess('شكراً لك، لقد صوتت مسبقاً');
+                }
+                
+                updateResults();
+            } catch (error) {
+                console.error('Error checking previous vote:', error);
+            }
+        }
+
+        function showLoader(show) {
+            loader.style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+            successMsg.style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            successMsg.textContent = message;
+            successMsg.style.display = 'block';
+            errorMsg.style.display = 'none';
+        }
+
+        function hideMessages() {
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+        }
+
+        voteBtn.addEventListener('click', submitVote);
+
+        // عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            checkPreviousVote();
+            
+            setInterval(updateResults, 10000);
+        });
     </script>
 </body>
 </html>
