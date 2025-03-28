@@ -861,11 +861,11 @@
                     <p><strong>aessa:</strong> <span id="aessa-votes">0</span> صوت</p>
                     <div class="bar" style="width: 0%" id="aessa-bar"></div>
                 </div>
-                </div> class="result-bar">
+                <div class="result-bar">
                     <p><strong>krak3n:</strong> <span id="krak3n-votes">0</span> صوت</p>
                     <div class="bar" style="width: 0%" id="krak3n-bar"></div>
                 </div>
-               </div>
+            </div>
         </section>
         
         <section id="streamers" class="fade-in delay-1">
@@ -983,7 +983,6 @@
                 </a>
 
                 <div class="bobony-family">
-                </div>  
                     <a href="https://discord.gg/bobonyfamily" class="watermark" target="_blank">Bobony Family</a>
                 </div>
             </div>
@@ -1011,49 +1010,88 @@
         const errorMsg = document.getElementById('error-msg');
         const successMsg = document.getElementById('success-msg');
         
-        let votesData = {
+        // مفاتيح التخزين
+        const VOTES_KEY = 'rapCommunityVotes';
+        const VOTERS_KEY = 'rapCommunityVoters';
+        
+        // بيانات التصويت الافتراضية
+        const DEFAULT_VOTES = {
             'BIG A': 0,
             'mirv48': 0,
             'Shaoline': 0,
-            'aessa': 0
+            'aessa': 0,
+            'krak3n': 0
         };
-        
+    
+        // إنشاء معرف فريد للمستخدم
+        function getVoterId() {
+            let voterId = localStorage.getItem('voterId');
+            if (!voterId) {
+                voterId = 'voter-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('voterId', voterId);
+            }
+            return voterId;
+        }
+    
+        // تحميل بيانات التصويت
         function loadVotes() {
-            const savedVotes = localStorage.getItem('rapCommunityVotes');
-            if (savedVotes) {
-                votesData = JSON.parse(savedVotes);
-            }
-            updateResultsUI();
+            const savedVotes = localStorage.getItem(VOTES_KEY);
+            return savedVotes ? JSON.parse(savedVotes) : {...DEFAULT_VOTES};
         }
-        
-        function saveVotes() {
-            localStorage.setItem('rapCommunityVotes', JSON.stringify(votesData));
+    
+        // حفظ بيانات التصويت
+        function saveVotes(votes) {
+            localStorage.setItem(VOTES_KEY, JSON.stringify(votes));
         }
-        
-        function checkIfVoted() {
-            const hasVoted = localStorage.getItem('rapCommunityHasVoted');
-            if (hasVoted) {
-                voteBtn.disabled = true;
-                showSuccess('شكراً لك، لقد صوتت مسبقاً');
-            }
+    
+        // تحميل قائمة المصوتين
+        function loadVoters() {
+            const savedVoters = localStorage.getItem(VOTERS_KEY);
+            return savedVoters ? JSON.parse(savedVoters) : [];
         }
-        
+    
+        // حفظ قائمة المصوتين
+        function saveVoters(voters) {
+            localStorage.setItem(VOTERS_KEY, JSON.stringify(voters));
+        }
+    
+        // التحقق إذا كان المستخدم قد صوت مسبقاً
+        function hasUserVoted() {
+            const voterId = getVoterId();
+            const voters = loadVoters();
+            return voters.includes(voterId);
+        }
+    
+        // تسجيل تصويت جديد
+        function registerVote(artistName) {
+            const votes = loadVotes();
+            votes[artistName]++;
+            saveVotes(votes);
+            
+            const voterId = getVoterId();
+            const voters = loadVoters();
+            voters.push(voterId);
+            saveVoters(voters);
+        }
+    
+        // تحديث واجهة النتائج
         function updateResultsUI() {
-            const total = votesData['BIG A'] + votesData['mirv48'] + votesData['Shaoline'] + votesData['aessa'];
-            
-            document.getElementById('bigA-votes').textContent = votesData['BIG A'];
-            document.getElementById('mirv48-votes').textContent = votesData['mirv48'];
-            document.getElementById('shaoline-votes').textContent = votesData['Shaoline'];
-            document.getElementById('aessa-votes').textContent = votesData['aessa'];
-            
-            if (total > 0) {
-                document.getElementById('bigA-bar').style.width = `${(votesData['BIG A'] / total) * 100}%`;
-                document.getElementById('mirv48-bar').style.width = `${(votesData['mirv48'] / total) * 100}%`;
-                document.getElementById('shaoline-bar').style.width = `${(votesData['Shaoline'] / total) * 100}%`;
-                document.getElementById('aessa-bar').style.width = `${(votesData['aessa'] / total) * 100}%`;
+            const votes = loadVotes();
+            const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+    
+            for (const artist in votes) {
+                const artistKey = artist.replace(' ', '').replace('3', '');
+                const votesElement = document.getElementById(`${artistKey}-votes`);
+                const barElement = document.getElementById(`${artistKey}-bar`);
+    
+                if (votesElement && barElement) {
+                    votesElement.textContent = votes[artist];
+                    barElement.style.width = totalVotes > 0 ? `${(votes[artist] / totalVotes) * 100}%` : '0%';
+                }
             }
         }
-        
+    
+        // معالجة التصويت
         function submitVote() {
             const selectedArtist = document.querySelector('input[name="artist"]:checked');
             
@@ -1061,61 +1099,68 @@
                 showError('الرجاء اختيار فنان قبل التصويت');
                 return;
             }
-            
+    
+            if (hasUserVoted()) {
+                showError('لقد قمت بالتصويت مسبقاً!');
+                voteBtn.disabled = true;
+                return;
+            }
+    
             showLoader(true);
             hideMessages();
-            
+    
             setTimeout(() => {
-                const artistName = selectedArtist.value;
-                
-                if (localStorage.getItem('rapCommunityHasVoted')) {
-                    showLoader(false);
+                try {
+                    registerVote(selectedArtist.value);
+                    updateResultsUI();
+                    
                     voteBtn.disabled = true;
-                    showError('لقد قمت بالتصويت مسبقاً!');
-                    return;
+                    showSuccess('تم تسجيل تصويتك بنجاح! شكراً لك');
+                } catch (error) {
+                    showError('حدث خطأ أثناء حفظ التصويت. الرجاء المحاولة لاحقاً');
+                    console.error('Error saving vote:', error);
+                } finally {
+                    showLoader(false);
                 }
-                
-                votesData[artistName]++;
-                
-                saveVotes();
-                localStorage.setItem('rapCommunityHasVoted', 'true');
-                
-                updateResultsUI();
-                
-                showLoader(false);
-                voteBtn.disabled = true;
-                showSuccess('تم تسجيل تصويتك بنجاح! شكراً لك');
-            }, 1000);
+            }, 500);
         }
-        
+    
+        // وظائف مساعدة للواجهة
         function showLoader(show) {
             loader.style.display = show ? 'block' : 'none';
         }
-        
+    
         function showError(message) {
             errorMsg.textContent = message;
             errorMsg.style.display = 'block';
             successMsg.style.display = 'none';
         }
-        
+    
         function showSuccess(message) {
             successMsg.textContent = message;
             successMsg.style.display = 'block';
             errorMsg.style.display = 'none';
         }
-        
+    
         function hideMessages() {
             errorMsg.style.display = 'none';
             successMsg.style.display = 'none';
         }
-        
+    
+        // تهيئة الصفحة
         document.addEventListener('DOMContentLoaded', () => {
-            loadVotes();
-            checkIfVoted();
+            updateResultsUI();
+            
+            if (hasUserVoted()) {
+                voteBtn.disabled = true;
+                showSuccess('شكراً لك، لقد صوتت مسبقاً');
+            }
         });
-        
+    
+        // إعداد مستمع الأحداث
         voteBtn.addEventListener('click', submitVote);
-        
+    
+        // وظائف القائمة المتنقلة والتنقل السلس
         function toggleMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
             const overlay = document.getElementById('overlay');
@@ -1123,20 +1168,13 @@
             mobileMenu.classList.toggle('active');
             overlay.classList.toggle('active');
             
-            if (mobileMenu.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
         }
-        
+    
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+            anchor.addEventListener('click', function(e) {
                 e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                
+                const targetElement = document.querySelector(this.getAttribute('href'));
                 if (targetElement) {
                     window.scrollTo({
                         top: targetElement.offsetTop - 80,
@@ -1145,9 +1183,9 @@
                 }
             });
         });
-        
+    
+        // تأثيرات الظهور
         const fadeElements = document.querySelectorAll('.fade-in');
-        
         const fadeInObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1156,7 +1194,7 @@
                 }
             });
         }, { threshold: 0.1 });
-        
+    
         fadeElements.forEach(element => {
             element.style.opacity = '0';
             element.style.transform = 'translateY(20px)';
