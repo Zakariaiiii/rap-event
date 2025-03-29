@@ -823,9 +823,27 @@
                         </div>
                     </div>
                 </div>
+                <div class="artist-card fade-in delay-3">
+                    <div class="artist-image-container">
+                        <img src="./images/tlbigy.jpg" alt="thelittlebiggy" class="artist-image" loading="lazy">
+                    </div>
+                    <div class="artist-info">
+                        <h3 class="artist-name">thelittlebiggy</h3>
+                        <span class="artist-role">فنان راب</span>
+                        <p class="artist-bio">فنان راب مبدع بأسلوبه الفريد وطاقته العالية</p>
+                        <div class="social-links">
+                            <a href="https://www.instagram.com/tlbiggy/" class="social-link instagram-link" target="_blank">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="https://www.youtube.com/@tlbiggy" class="social-link youtube-link" target="_blank">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
-    
+
         <section id="vote" class="fade-in delay-2">
             <h2 class="section-title">صوّت لفنانك المفضل</h2>
             
@@ -863,6 +881,11 @@
                     <span>rouikos</span>
                 </label>
     
+                <label class="vote-option">
+                    <input type="radio" name="artist" value="thelittlebiggy"> 
+                    <span>thelittlebiggy</span>
+                </label>
+
                 <div class="loader" id="loader">
                     <i class="fas fa-spinner fa-spin"></i> جاري معالجة التصويت...
                 </div>
@@ -896,7 +919,11 @@
                     <p><strong>rouikos:</strong> <span id="rouikos-votes">0</span> صوت</p>
                     <div class="bar" style="width: 0%" id="rouikos-bar"></div>
                 </div>
-            </div>
+                <div class="result-bar">
+                    <p><strong>thelittlebiggy:</strong> <span id="thelittlebiggy-votes">0</span> صوت</p>
+                    <div class="bar" style="width: 0%" id="thelittlebiggy-bar"></div>
+                </div>
+            </div>  
         </section>
 
         <section id="streamers" class="fade-in delay-1">
@@ -1064,7 +1091,8 @@
             'Shaoline': 'shaoline',
             'aessa': 'aessa',
             'krak3n': 'krak3n',
-            'rouikos': 'rouikos'
+            'rouikos': 'rouikos',
+            'thelittlebiggy': 'thelittlebiggy'
         };
 
         // Initialize vote counts
@@ -1074,7 +1102,8 @@
             'Shaoline': 0,
             'aessa': 0,
             'krak3n': 0,
-            'rouikos': 0
+            'rouikos': 0,
+            'thelittlebiggy': 0
         };
 
         // Check Firebase connection
